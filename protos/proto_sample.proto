@@ -1,0 +1,18 @@
+﻿
+syntax = "proto3";
+
+service AI_OnlineClassMonitor {
+    rpc process(InferenceRequest) returns (InferenceReply) {}
+}
+
+message InferenceRequest {
+    bytes img_bytes = 1;
+    int32 width = 2;
+    int32 height = 3;
+    int32 channel = 4;
+}
+
+message InferenceReply {
+    // distance with monitor
+    int32 distance = 1;
+}
