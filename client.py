@@ -6,6 +6,22 @@ import os
 import cv2
 import argparse
 
+def grpc_request(ip, port, frame):
+    if ip[-1]!=':':
+        ip+=':'
+    print('request: client -> server : {}{}'.format(ip,port))
+    with grpc.insecure_channel(ip+port) as channel: #store info as channel
+        stub = proto_sample_pb2_grpc.AI_OnlineClassMonitorStub(channel)
+        response = stub.process(
+            proto_sample_pb2.InferenceRequest(
+                img_bytes = bytes(frame),
+                width = frame.shape[1],
+                height = frame.shape[0],
+                channel = frame.shape[2]
+            )
+        )
+        return response
+
 #options 10651
 def opt():
     #object/instance
@@ -23,7 +39,10 @@ def main():
 
     while True:
         _, frame = webcam.read() # read image: boolean, pixel save frame
-        print(type(frame))
+
+        response = grpc_request(args.ip, args.port, frame)
+        print(response.distance)
+
         cv2.imshow('window', frame) #show image on pc
         key = cv2.waitKey(33) # 33ms show image - speed - frame per sec
         # change user key input to ASCII
