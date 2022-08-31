@@ -41,6 +41,7 @@ def main():
         _, frame = webcam.read() # read image: boolean, pixel save frame
 
         response = grpc_request(args.ip, args.port, frame)
+        frame = cv2.putText(frame, str(response.distance), (100,100), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0,0,255), 2)
         print(response.distance)
 
         cv2.imshow('window', frame) #show image on pc
