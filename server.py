@@ -11,6 +11,8 @@ from datetime import datetime
 from pytz import timezone
 import logging
 
+import ai_module as ai
+
 class OnlineClassMonitor_Model(proto_sample_pb2_grpc.AI_OnlineClassMonitor):
     def __init__(self, args):
         super().__init__()
@@ -30,12 +32,38 @@ class OnlineClassMonitor_Model(proto_sample_pb2_grpc.AI_OnlineClassMonitor):
 
         self.fmt = '%Y-%m-%d %H:%M:%S' # year month day hour min sec
         time_info = datetime.now(timezone('Asia/Seoul')).strftime(self.fmt)
+
+        self.model = ai.GazeTracker()
+
+
         self.logger.info('{} - Server ready'.format(time_info))
 
     def process(self, input, context):
+
+        image = np.array(list(input.img_bytes))
+        image = image.reshape((input.height, input.width, input.channel))
+        image = np.array(image, dtype=np.uint8) # create image
+
+
+
         response = proto_sample_pb2.InferenceReply()
-        response.distance = 1000
-        return response
+        try:
+            result = self.model(image)
+            print(result.face_distance)
+        except Exception as e:
+            self.logger.info('{0} - Error Occurred: {1}'.format(
+                datetime.now(timezone('Asia/Seoul')).strftime(self.fmt), repr(e)
+            ))
+            response.distance=-1
+        except KeyboardInterrupt:
+            print("Terminate server")
+        else:
+            response.distance = result.face_distance
+        finally:
+            self.logger.info('{0} - Successful image process'.format(
+                datetime.now(timezone('Asia/Seoul')).strftime(self.fmt)
+            ))
+            return response
 
 
 def opt():
