@@ -6,6 +6,11 @@ import os
 import cv2
 import argparse
 
+def userfeedback(distance, frame):
+
+    frame = cv2.putText(frame, str(distance), (100,100), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0,0,255), 2) # put text in image
+    return frame
+
 def grpc_request(ip, port, frame):
     if ip[-1]!=':':
         ip+=':'
@@ -41,7 +46,7 @@ def main():
         _, frame = webcam.read() # read image: boolean, pixel save frame
 
         response = grpc_request(args.ip, args.port, frame)
-        print(response.distance)
+        frame = userfeedback(response.distance, frame)
 
         cv2.imshow('window', frame) #show image on pc
         key = cv2.waitKey(33) # 33ms show image - speed - frame per sec
