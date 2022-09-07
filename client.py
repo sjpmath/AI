@@ -9,6 +9,17 @@ import argparse
 
 
 class Message:
+
+    """
+
+        Types of user feedback
+        key = message name
+        loc = location of message on frame
+        color = color of message
+        text = text shown on frame
+
+    """
+
     m_dict = {
         'absent': {
             'loc': (100,300),
@@ -28,6 +39,16 @@ class Message:
     }
 
 def userfeedback(distance, frame, thresdistance):
+    """
+
+        Arguments:
+            distance (int) = distance between face and screen
+            frame (np.ndarray) = webcam image
+            thresdistance (int) = threshold distance calibrated by user
+
+        Returns feedback for user based on distance between face and screen
+
+    """
     keyname = ''
     if distance ==0: #error
         keyname = 'absent'
@@ -37,9 +58,12 @@ def userfeedback(distance, frame, thresdistance):
     elif distance < thresdistance: #too close
         keyname = 'too_close'
         os.system('say face is too close') # text to speech
-    frame = cv2.putText(frame, 'Detected distance: {}'.format(distance), (100,200), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0,0,255), 2) # put text in image
+    frame = cv2.putText(frame, 'Detected distance: {}'.format(distance), \
+        (100,200), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0,0,255), 2) # put text in image
     if keyname!='':
-        frame = cv2.putText(frame, Message.m_dict[keyname]['text'], Message.m_dict[keyname]['loc'], cv2.FONT_HERSHEY_SIMPLEX, 1.0, Message.m_dict[keyname]['color'], 2)
+        frame = cv2.putText(frame, Message.m_dict[keyname]['text'], \
+            Message.m_dict[keyname]['loc'], cv2.FONT_HERSHEY_SIMPLEX, 1.0, \
+            Message.m_dict[keyname]['color'], 2)
     return frame
 
 def grpc_request(ip, port, frame):
@@ -62,8 +86,10 @@ def grpc_request(ip, port, frame):
 def opt():
     #object/instance
     parser = argparse.ArgumentParser()
-    parser.add_argument('--ip', type=str, default='localhost:', help='ip address (default: localhost)')
-    parser.add_argument('--port', type=str, default='10651', help='port address (default: 10651)')
+    parser.add_argument('--ip', type=str, default='localhost:', \
+        help='ip address (default: localhost)')
+    parser.add_argument('--port', type=str, default='10651', \
+        help='port address (default: 10651)')
     return parser.parse_args()
 
 def main():
@@ -82,7 +108,7 @@ def main():
         frame = userfeedback(response.distance, frame, calibratedDistance)
         frame = cv2.putText(frame, 'Calibrated distance: {}'.format(calibratedDistance), (100,100), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0,0,255), 2) # put text in imag
         cv2.imshow('window', frame) #show image on pc
-        key = cv2.waitKey(33) # 33ms show image - speed - frame per sec
+        key = cv2.waitKey(330) # 33ms show image - speed - frame per sec
         # change user key input to ASCII
         if key == ord('q'): # change q to ASCII
             break
