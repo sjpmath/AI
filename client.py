@@ -112,6 +112,8 @@ def main():
         # change user key input to ASCII
         if key == ord('q'): # change q to ASCII
             break
+        elif key==ord('s'):
+            cv2.imwrite('shot.png', frame)
 
 if __name__ == '__main__':
     main()
