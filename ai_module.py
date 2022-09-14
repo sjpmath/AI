@@ -317,7 +317,7 @@ if __name__ == '__main__':
 
     # AI module object
     monitor_system = GazeTracker()
-
+    frame_cnt = 1
     while True:
         _, frame_bgr = webcam.read()
 
@@ -336,12 +336,19 @@ if __name__ == '__main__':
             cv2.imshow('face', face)
 
         vis_img = monitor_system.get_visualizer_image()
-        if distance is not None:
-            vis_img = cv2.putText(vis_img, str(distance), (50,50), cv2.FONT_HERSHEY_COMPLEX, 0.6, (0,255,255), 2)
+        vis_img = vis_img[:, 150:, :]
 
+        if distance is not None:
+            vis_img = cv2.putText(vis_img, "Distance: "+str(distance), (50,50), cv2.FONT_HERSHEY_COMPLEX, 1.0, (0,0,255), 2)
+            if distance < 190:
+                vis_img = cv2.putText(vis_img, "Face too close", (50,90), cv2.FONT_HERSHEY_COMPLEX, 1.0, (255,0,255), 2)
 
 
         cv2.imshow('window', vis_img)
         key = cv2.waitKey(33) # 30fps
         if key == ord('q'):
             break
+        elif key== ord('s'):
+            file_path = '{}.png'.format(frame_cnt)
+            cv2.imwrite(file_path, vis_img)
+            frame_cnt+=1
